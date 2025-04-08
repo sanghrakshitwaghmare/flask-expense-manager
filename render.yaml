@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: expense-manager
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: SQLALCHEMY_DATABASE_URI
+        value: postgresql:///expense_manager
+      - key: PYTHON_VERSION
+        value: 3.9.13
