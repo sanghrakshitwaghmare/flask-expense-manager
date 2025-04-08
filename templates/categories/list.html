@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/categories.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Expense Categories</h2>
+        <div>
+            <a href="{{ url_for('categories.initialize_default_categories') }}" class="btn btn-secondary me-2">Initialize Default Categories</a>
+            <a href="{{ url_for('categories.add_category') }}" class="btn btn-primary">Add New Category</a>
+        </div>
+    </div>
+
+    {% if categories %}
+    <div class="row">
+        {% for category in categories %}
+        <div class="col-md-4 mb-4">
+            <div class="card category-card h-100">
+                {% if category.is_default %}
+                <span class="category-badge">Default</span>
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ category.name }}</h5>
+                    <p class="card-text">{{ category.description }}</p>
+                    <div class="category-stats">
+                        <i class="fas fa-chart-line"></i> Used in {{ category.expenses|length }} expenses
+                    </div>
+                    {% if not category.is_default %}
+                    <div class="category-actions mt-3 d-flex justify-content-end">
+                        <a href="{{ url_for('categories.edit_category', id=category.id) }}" class="btn btn-sm btn-outline-primary me-2">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a href="{{ url_for('categories.delete_category', id=category.id) }}" 
+                           class="btn btn-sm btn-outline-danger"
+                           onclick="return confirm('Are you sure you want to delete this category? This action cannot be undone.')">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        <div class="col-md-4 mb-4">
+            <a href="{{ url_for('categories.add_category') }}" class="card add-category-card text-decoration-none">
+                <div class="text-center">
+                    <i class="fas fa-plus-circle add-category-icon mb-2"></i>
+                    <h5 class="mb-0">Add New Category</h5>
+                </div>
+            </a>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <p>No categories found. Click "Initialize Default Categories" to add some default categories, or "Add New Category" to create your own.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

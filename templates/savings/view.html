@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">{{ challenge.title }}</h5>
+            <span class="badge {% if challenge.completed %}bg-success{% else %}bg-primary{% endif %}">
+                {% if challenge.completed %}Completed{% else %}In Progress{% endif %}
+            </span>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Progress</h6>
+                    <div class="progress mb-3">
+                        {% set progress = (challenge.current_amount / challenge.target_amount * 100)|round|int %}
+                        <div class="progress-bar" role="progressbar" style="width: {{ progress }}%" 
+                             aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100">
+                            {{ progress }}%
+                        </div>
+                    </div>
+                    
+                    <p><strong>Current Amount:</strong> ${{ "%.2f"|format(challenge.current_amount) }}</p>
+                    <p><strong>Target Amount:</strong> ${{ "%.2f"|format(challenge.target_amount) }}</p>
+                    <p><strong>Remaining:</strong> ${{ "%.2f"|format(challenge.target_amount - challenge.current_amount) }}</p>
+                </div>
+                
+                <div class="col-md-6">
+                    <p><strong>Start Date:</strong> {{ challenge.start_date.strftime('%Y-%m-%d') }}</p>
+                    <p><strong>End Date:</strong> {{ challenge.end_date.strftime('%Y-%m-%d') }}</p>
+                    <p><strong>Current Streak:</strong> {{ challenge.streak_days }} days</p>
+                    {% if challenge.description %}
+                    <p><strong>Description:</strong> {{ challenge.description }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if not challenge.completed %}
+            <form action="{{ url_for('savings.update_challenge', id=challenge.id) }}" method="POST" class="mt-4">
+                <div class="input-group">
+                    <input type="number" step="0.01" min="0.01" name="amount" class="form-control" placeholder="Enter amount" required>
+                    <button type="submit" class="btn btn-primary">Update Progress</button>
+                </div>
+            </form>
+            {% endif %}
+        </div>
+        
+        <div class="card-footer">
+            <a href="{{ url_for('savings.list_challenges') }}" class="btn btn-secondary">Back to Challenges</a>
+            {% if not challenge.completed %}
+            <a href="{{ url_for('savings.delete_challenge', id=challenge.id) }}" 
+               class="btn btn-danger float-end"
+               onclick="return confirm('Are you sure you want to delete this challenge?')">
+                Delete Challenge
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

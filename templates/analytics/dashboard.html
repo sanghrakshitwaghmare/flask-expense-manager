@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Financial Analytics</h2>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Income</h5>
+                    <h3>₹{{ "%.2f"|format(total_income) }}</h3>
+                    <p class="card-text">Last 6 months</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Expenses</h5>
+                    <h3>₹{{ "%.2f"|format(total_expenses) }}</h3>
+                    <p class="card-text">Last 6 months</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Savings</h5>
+                    <h3>₹{{ "%.2f"|format(savings) }}</h3>
+                    <p class="card-text">Savings Rate: {{ "%.1f"|format(savings_rate) }}%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Monthly Expense Trend</h5>
+                    <canvas id="monthlyTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Expense Distribution by Category</h5>
+                    <canvas id="categoryDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Budget Analysis -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Budget vs Actual Analysis</h5>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Budget Amount</th>
+                            <th>Actual Spent</th>
+                            <th>Variance</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for analysis in budget_analysis %}
+                        <tr>
+                            <td>{{ analysis.category }}</td>
+                            <td>₹{{ "%.2f"|format(analysis.budget_amount) }}</td>
+                            <td>₹{{ "%.2f"|format(analysis.actual_amount) }}</td>
+                            <td>₹{{ "%.2f"|format(analysis.variance) }}</td>
+                            <td>
+                                {% if analysis.variance >= 0 %}
+                                <span class="badge bg-success">Under Budget</span>
+                                {% else %}
+                                <span class="badge bg-danger">Over Budget</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Fetch and render monthly trend chart
+    fetch('/analytics/api/monthly-trend')
+        .then(response => response.json())
+        .then(data => {
+            new Chart(document.getElementById('monthlyTrendChart'), {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Monthly Expenses',
+                        data: data.expenses,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+
+    // Fetch and render category distribution chart
+    fetch('/analytics/api/category-distribution')
+        .then(response => response.json())
+        .then(data => {
+            new Chart(document.getElementById('categoryDistributionChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        data: data.values,
+                        backgroundColor: [
+                            '#FF6384',
+                            '#36A2EB',
+                            '#FFCE56',
+                            '#4BC0C0',
+                            '#9966FF',
+                            '#FF9F40'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        });
+</script>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Recurring Transactions</h2>
+        <a href="{{ url_for('recurring.add_recurring') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add New
+        </a>
+    </div>
+
+    {% if transactions %}
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Amount</th>
+                    <th>Category</th>
+                    <th>Frequency</th>
+                    <th>Next Due</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                <tr>
+                    <td>{{ transaction.name }}</td>
+                    <td>${{ transaction.amount | round(2) }}</td>
+                    <td>{{ transaction.category }}</td>
+                    <td>{{ transaction.frequency.capitalize() }}</td>
+                    <td>{{ transaction.next_due_date.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <span class="badge {{ 'bg-danger' if transaction.is_expense else 'bg-success' }}">
+                            {{ 'Expense' if transaction.is_expense else 'Income' }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge {{ 'bg-success' if transaction.active else 'bg-secondary' }}">
+                            {{ 'Active' if transaction.active else 'Inactive' }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="{{ url_for('recurring.edit_recurring', id=transaction.id) }}" 
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{{ url_for('recurring.toggle_recurring', id=transaction.id) }}" 
+                               class="btn btn-sm {{ 'btn-outline-secondary' if transaction.active else 'btn-outline-success' }}">
+                                <i class="fas {{ 'fa-pause' if transaction.active else 'fa-play' }}"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle"></i> No recurring transactions set up yet. 
+        <a href="{{ url_for('recurring.add_recurring') }}">Add your first recurring transaction</a> to automate your finances!
+    </div>
+    {% endif %}
+
+    <div class="card mt-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">About Recurring Transactions</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Benefits</h6>
+                    <ul>
+                        <li>Automate regular bills and income</li>
+                        <li>Never miss a payment</li>
+                        <li>Better financial planning</li>
+                        <li>Save time on manual entries</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6>Features</h6>
+                    <ul>
+                        <li>Support for both expenses and income</li>
+                        <li>Multiple frequency options</li>
+                        <li>Easy to pause and resume</li>
+                        <li>Automatic transaction creation</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

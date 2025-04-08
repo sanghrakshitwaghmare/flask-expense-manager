@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}Budget Analytics{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Budget Analytics</h2>
+        </div>
+    </div>
+
+    <!-- Budget Overview Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Budgets</h5>
+                    <h3 class="card-text">${{ "%.2f"|format(total_budget_amount) }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Available Balance</h5>
+                    <h3 class="card-text">${{ "%.2f"|format(total_budget_amount - total_spent) }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Remaining Income</h5>
+                    <h3 class="card-text">${{ "%.2f"|format(total_remaining_income) }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Savings</h5>
+                    <h3 class="card-text">${{ "%.2f"|format(total_savings) }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Budget Health -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5 class="card-title">Budget Health</h5>
+                    <div class="progress">
+                        <div class="progress-bar {{ 'bg-success' if budget_health >= 70 else 'bg-warning' if budget_health >= 40 else 'bg-danger' }}" 
+                             role="progressbar" 
+                             style="width: {{ budget_health }}%" 
+                             aria-valuenow="{{ budget_health }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                            {{ budget_health }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Budget Period Analysis -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Budget Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="budgetDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Spending Trends</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="spendingTrendsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Budget Alerts -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Budget Alerts</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Alert Type</th>
+                                    <th>Triggered Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for alert in budget_alerts %}
+                                <tr>
+                                    <td>{{ alert.budget.category }}</td>
+                                    <td>
+                                        {% if alert.threshold_percentage == 100 %}
+                                        <span class="badge bg-danger">Exceeded</span>
+                                        {% else %}
+                                        <span class="badge bg-warning">Near Limit</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ alert.triggered_date.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        {% if alert.acknowledged %}
+                                        <span class="badge bg-secondary">Acknowledged</span>
+                                        {% else %}
+                                        <span class="badge bg-primary">New</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Budget Distribution Chart
+const budgetCtx = document.getElementById('budgetDistributionChart').getContext('2d');
+new Chart(budgetCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ budget_categories|tojson }},
+        datasets: [{
+            data: {{ budget_amounts|tojson }},
+            backgroundColor: [
+                '#FF6384',
+                '#36A2EB',
+                '#FFCE56',
+                '#4BC0C0',
+                '#9966FF'
+            ]
+        }]
+    }
+});
+
+// Spending Trends Chart
+const spendingCtx = document.getElementById('spendingTrendsChart').getContext('2d');
+new Chart(spendingCtx, {
+    type: 'line',
+    data: {
+        labels: {{ spending_dates|tojson }},
+        datasets: [{
+            label: 'Budget',
+            data: {{ budget_trend|tojson }},
+            borderColor: '#36A2EB',
+            fill: false
+        }, {
+            label: 'Actual Spending',
+            data: {{ spending_trend|tojson }},
+            borderColor: '#FF6384',
+            fill: false
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

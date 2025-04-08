@@ -1,0 +1,67 @@
+.category-card {
+    transition: transform 0.2s;
+    border: 1px solid #e0e0e0;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.category-card .card-body {
+    padding: 1.25rem;
+}
+
+.category-card .card-title {
+    color: #2c3e50;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.category-card .card-text {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.category-actions {
+    margin-top: auto;
+}
+
+.category-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 0.25rem;
+    background-color: #e9ecef;
+    color: #6c757d;
+}
+
+.category-stats {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
+}
+
+.add-category-card {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #dee2e6;
+    background-color: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.add-category-card:hover {
+    border-color: #6c757d;
+    background-color: #e9ecef;
+}
+
+.add-category-icon {
+    font-size: 2rem;
+    color: #6c757d;
+}

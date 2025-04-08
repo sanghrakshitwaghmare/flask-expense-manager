@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Smart Budget Recommendations</h2>
+    <div class="alert alert-info">
+        These recommendations are based on your historical spending patterns and have been optimized using AI analysis.
+    </div>
+
+    <form action="{{ url_for('smart_budget.apply_recommendations') }}" method="POST">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Select</th>
+                        <th>Category</th>
+                        <th>Current Budget</th>
+                        <th>Recommended Budget</th>
+                        <th>Change</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category, recommended in recommendations.items() %}
+                    <tr>
+                        <td>
+                            <input type="checkbox" name="categories" value="{{ category }}" class="form-check-input">
+                        </td>
+                        <td>{{ category }}</td>
+                        <td>₹{{ current_budgets.get(category, 0) | round(2) }}</td>
+                        <td>₹{{ recommended | round(2) }}</td>
+                        <td>
+                            {% set change = recommended - current_budgets.get(category, 0) %}
+                            <span class="{{ 'text-success' if change >= 0 else 'text-danger' }}">
+                                {{ '+' if change >= 0 else '' }}₹{{ change | round(2) }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+            <button type="submit" class="btn btn-primary">Apply Selected Recommendations</button>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </form>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5>How are these recommendations calculated?</h5>
+        </div>
+        <div class="card-body">
+            <ul>
+                <li>Analysis of your spending patterns over the last 3 months</li>
+                <li>Consideration of spending frequency and variability</li>
+                <li>Smart buffers added based on expense predictability</li>
+                <li>Optimization for your financial goals</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const selectedCategories = document.querySelectorAll('input[name="categories"]:checked');
+            if (selectedCategories.length === 0) {
+                alert('Please select at least one category to apply recommendations.');
+                return;
+            }
+            form.submit();
+        });
+    });
+</script>
+{% endblock %}
