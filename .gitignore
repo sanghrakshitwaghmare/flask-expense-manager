@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environment variables
+.env
+
+# Database files
+instance/
+*.db
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
